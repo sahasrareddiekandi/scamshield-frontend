@@ -5,6 +5,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+<<<<<<< HEAD
   const [token, setToken] = useState(localStorage.getItem('scamshield_token') || null);
   const [loading, setLoading] = useState(true);
 
@@ -14,10 +15,26 @@ export const AuthProvider = ({ children }) => {
       try {
         setUser(JSON.parse(savedUser));
       } catch (e) {
+=======
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem('scamshield_token');
+    const savedUser = localStorage.getItem('scamshield_user');
+
+    if (savedToken && savedUser) {
+      try {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem('scamshield_token');
+>>>>>>> 31bd52d2744288ef5bea2b1c40185b0655ac316c
         localStorage.removeItem('scamshield_user');
       }
     }
     setLoading(false);
+<<<<<<< HEAD
   }, [token]);
 
   const login = async (email, password) => {
@@ -57,6 +74,62 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAdmin }}>
+=======
+  }, []);
+
+  const login = async (email, password) => {
+    const response = await api.post('/auth/login', { email, password });
+    const data = response.data;
+    setToken(data.token);
+    setUser({
+      id: data.id,
+      email: data.email,
+      fullName: data.fullName,
+      role: data.role,
+    });
+    localStorage.setItem('scamshield_token', data.token);
+    localStorage.setItem('scamshield_user', JSON.stringify({
+      id: data.id,
+      email: data.email,
+      fullName: data.fullName,
+      role: data.role,
+    }));
+    return data;
+  };
+
+  const register = async (fullName, email, password) => {
+    const response = await api.post('/auth/register', { fullName, email, password });
+    const data = response.data;
+    setToken(data.token);
+    setUser({
+      id: data.id,
+      email: data.email,
+      fullName: data.fullName,
+      role: data.role,
+    });
+    localStorage.setItem('scamshield_token', data.token);
+    localStorage.setItem('scamshield_user', JSON.stringify({
+      id: data.id,
+      email: data.email,
+      fullName: data.fullName,
+      role: data.role,
+    }));
+    return data;
+  };
+
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('scamshield_token');
+    localStorage.removeItem('scamshield_user');
+  };
+
+  const isAuthenticated = !!token;
+  const isAdmin = user?.role === 'ROLE_ADMIN';
+
+  return (
+    <AuthContext.Provider value={{ user, token, isAuthenticated, isAdmin, loading, login, register, logout }}>
+>>>>>>> 31bd52d2744288ef5bea2b1c40185b0655ac316c
       {children}
     </AuthContext.Provider>
   );
